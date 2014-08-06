@@ -1,0 +1,17 @@
+name: BoobiePlugin
+version: 8008135
+main: pictures.boobie.plugin.BoobiePlugin
+commands:
+    search:
+        description: Searches google and display result as map
+        usage: /search [query]
+        permission: boobie.user
+        permission-message: You don't have the permission boobie.user
+permissions:
+    boobie:
+        user:
+            description: Permission node for Boobie users
+            default: true
+        admin:
+            description: Permission node for Boobie admins
+            default: op
