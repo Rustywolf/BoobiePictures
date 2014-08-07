@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -15,10 +16,16 @@ import pictures.boobie.plugin.util.ImageUtil;
 
 public class MapFactory {
 
+    private static HashMap<Integer, Short> mapCache = new HashMap<>();
+    
     public static ItemStack createMap(BufferedImage image, World world) {
-        image = image.getSubimage(0, 0, 128, 128);
-
         ItemStack map = new ItemStack(Material.MAP);
+
+        if (mapCache.containsKey(image.hashCode())) {
+            map.setDurability(mapCache.get(image.hashCode()));
+        }
+        
+        image = image.getSubimage(0, 0, 128, 128);
 
         MapView view = Bukkit.createMap(world);
         for (MapRenderer mr : view.getRenderers()) {
@@ -31,6 +38,8 @@ public class MapFactory {
 
         map.setDurability(view.getId());
 
+        mapCache.put(image.hashCode(), view.getId());
+        
         return map;
     }
 

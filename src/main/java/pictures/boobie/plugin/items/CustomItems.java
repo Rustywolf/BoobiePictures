@@ -19,19 +19,31 @@ public class CustomItems {
     public static ItemStack NEXT_BUTTON = 
             CustomItems.createNew(new ItemStack(Material.INK_SACK, 1, (byte)2))
                     .withName(ChatColor.DARK_GREEN + "" + ChatColor.BOLD + "Next Result")
-                    .withLore(ChatColor.GRAY + "" + ChatColor.ITALIC + "Right Click: Next Result")
+                    .withLore(ChatColor.GRAY + "" + ChatColor.ITALIC + "Right Click: Next result.")
                     .getItemStack();
     
     public static ItemStack PREV_BUTTON = 
             CustomItems.createNew(new ItemStack(Material.INK_SACK, 1, (byte)1))
                     .withName(ChatColor.DARK_RED + "" + ChatColor.BOLD + "Previous Result")
-                    .withLore(ChatColor.GRAY + "" + ChatColor.ITALIC + "Right Click: Previous Result")
+                    .withLore(ChatColor.GRAY + "" + ChatColor.ITALIC + "Right Click: Previous result.")
                     .getItemStack();
     
     public static ItemStack CHANGE_SUB = 
-            CustomItems.createNew(new ItemStack(Material.PAPER))
+            CustomItems.createNew(new ItemStack(Material.INK_SACK, 1, (byte)6))
                     .withName(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "Change Subreddit")
-                    .withLore(ChatColor.GRAY + "" + ChatColor.ITALIC + "Right Click: Change Subreddit")
+                    .withLore(ChatColor.GRAY + "" + ChatColor.ITALIC + "Right Click: Change subreddit.")
+                    .getItemStack();
+    
+    public static ItemStack PASS_ROD = 
+            CustomItems.createNew(new ItemStack(Material.BLAZE_ROD))
+                    .withName(ChatColor.GOLD + "" + ChatColor.BOLD + "Pass Ownership")
+                    .withLore(ChatColor.GRAY + "" + ChatColor.ITALIC + "Right Click: Give ownership to next person.")
+                    .getItemStack();
+    
+    public static ItemStack FORCE_PASS_ROD = 
+            CustomItems.createNew(new ItemStack(Material.BONE))
+                    .withName(ChatColor.GOLD + "" + ChatColor.BOLD + "Force Pass Ownership")
+                    .withLore(ChatColor.GRAY + "" + ChatColor.ITALIC + "Right Click: Give ownership to next person.")
                     .getItemStack();
     
     public static CustomItem createNew(ItemStack item) {

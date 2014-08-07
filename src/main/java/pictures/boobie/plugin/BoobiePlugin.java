@@ -2,6 +2,7 @@ package pictures.boobie.plugin;
 
 import java.util.ArrayList;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
@@ -15,6 +16,7 @@ import pictures.boobie.plugin.listeners.EntityListener;
 import pictures.boobie.plugin.listeners.PlayerListener;
 import pictures.boobie.plugin.maps.MapFactory;
 import pictures.boobie.plugin.room.RoomData;
+import pictures.boobie.plugin.room.RoomOwnerManager;
 import pictures.boobie.plugin.util.ImageUtil;
 import pictures.boobie.plugin.web.SubredditData;
 
@@ -32,7 +34,11 @@ public class BoobiePlugin extends JavaPlugin {
      * Other
      */
     
+    public static String prefix = ChatColor.translateAlternateColorCodes('&', "&3&lSBP &b>> &e");
+    public static String prefixJoin = ChatColor.translateAlternateColorCodes('&', "&2&lSBP &a>> &e");
+    public static String prefixLeave = ChatColor.translateAlternateColorCodes('&', "&4&lSBP &c>> &e");
     public static RoomData room;
+    public static RoomOwnerManager roomOwner;
     
     @Override
     public void onEnable() {
@@ -61,6 +67,8 @@ public class BoobiePlugin extends JavaPlugin {
                 frames.add(frame);
             }
         }
+        
+        roomOwner = new RoomOwnerManager(this);
         
         room = new RoomData(this, location, location, new Location(location.getWorld(), 1, 67.5, -7, 180, 0), frames);
         room.setSubredditData(data);

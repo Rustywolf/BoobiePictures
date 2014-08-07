@@ -14,8 +14,6 @@ public class BlockListener implements Listener {
         if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
             event.setCancelled(true);
         }
-        
-        Bukkit.broadcastMessage(event.getBlock().getLocation().toString());
     }
     
     @EventHandler

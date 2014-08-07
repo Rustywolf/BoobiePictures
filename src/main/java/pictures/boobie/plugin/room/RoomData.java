@@ -2,12 +2,14 @@ package pictures.boobie.plugin.room;
 
 import java.util.ArrayList;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.inventory.ItemStack;
 import pictures.boobie.plugin.BoobiePlugin;
 import pictures.boobie.plugin.cuboid.Cuboid;
 import pictures.boobie.plugin.maps.MapFactory;
+import pictures.boobie.plugin.tasks.UpdateImageTask;
 import pictures.boobie.plugin.util.ImageUtil;
 import pictures.boobie.plugin.web.SubredditData;
 
@@ -23,14 +25,16 @@ public class RoomData {
     private RoomState state = RoomState.NONE;
     private Location roomSpawn;
     
-    private String ownerName = "Rustywolf";
-    
     public RoomData(BoobiePlugin plugin, Location roomPointOne, Location roomPointTwo, Location roomSpawn, ArrayList<ItemFrame> frames) {
         this.plugin = plugin;
         roomCuboid = new Cuboid(roomPointOne, roomPointTwo);
         //mapCuboid = new MapCuboid(roomPointOne, roomPointTwo);
         this.roomSpawn = roomSpawn;
         this.frames = frames;
+    }
+
+    public Cuboid getRoomCuboid() {
+        return roomCuboid;
     }
     
     public void setMainScreen() {
@@ -49,7 +53,7 @@ public class RoomData {
     
     public void setSubredditData(SubredditData data) {
         this.data = data;
-        this.getNextImage(this.ownerName);
+        this.getNextImage(this.getOwnerName());
     }
     
     public SubredditData getSubredditData() {
@@ -57,11 +61,11 @@ public class RoomData {
     }
 
     public String getOwnerName() {
-        return ownerName;
+        return BoobiePlugin.roomOwner.getName();
     }
 
     public void setOwnerName(String ownerName) {
-        this.ownerName = ownerName;
+        BoobiePlugin.roomOwner.setName(ownerName);
     }
 
     public Location getRoomSpawn() {
@@ -71,10 +75,18 @@ public class RoomData {
     public void setRoomSpawn(Location roomSpawn) {
         this.roomSpawn = roomSpawn;
     }
+
+    public RoomState getState() {
+        return state;
+    }
+
+    public void setState(RoomState state) {
+        this.state = state;
+    }
     
     public String getPrevImage(String playerName) {
-        if (!playerName.equals(this.ownerName)) {
-            return "You do not control the room.";
+        if (!playerName.equals(this.getOwnerName())) {
+            return "You do not control the room" + ChatColor.DARK_GRAY + ".";
         }
         
         if (data == null) {
@@ -83,24 +95,21 @@ public class RoomData {
         
         setLoadingScreen();
         
-        Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
-            urlCount--;
-            if (urlCount < 0) {
-                urlCount = data.getUrls().size()-1;
-            }
-            
-            String url = data.getUrls().get(urlCount);
-            updateImage(MapFactory.createMaps(ImageUtil.getImage(url), this.roomCuboid.getWorld(), 512, 512));
-            
-            state = RoomState.MAIN;
-        });
+        urlCount--;
+        if (urlCount < 0) {
+            urlCount = data.getUrls().size()-1;
+        }
+
+        String url = data.getUrls().get(urlCount);
+        
+        Bukkit.getScheduler().runTaskAsynchronously(this.plugin, new UpdateImageTask(this, url));
         
         return "";
     }
     
     public String getNextImage(String playerName) {
-        if (!playerName.equals(this.ownerName)) {
-            return "You do not control the room.";
+        if (!playerName.equals(this.getOwnerName())) {
+            return "You do not control the room" + ChatColor.DARK_GRAY + ".";
         }
         
         if (data == null) {
@@ -109,17 +118,14 @@ public class RoomData {
         
         setLoadingScreen();
         
-        Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
-            urlCount++;
-            if (urlCount >= data.getUrls().size()) {
-                urlCount = 0;
-            }
-            
-            String url = data.getUrls().get(urlCount);
-            updateImage(MapFactory.createMaps(ImageUtil.getImage(url), this.roomCuboid.getWorld(), 512, 512));
-            
-            state = RoomState.IMAGE;
-        });
+        urlCount++;
+        if (urlCount >= data.getUrls().size()) {
+            urlCount = 0;
+        }
+
+        String url = data.getUrls().get(urlCount);
+          
+        Bukkit.getScheduler().runTaskAsynchronously(this.plugin, new UpdateImageTask(this, url));
         
         return "";
     }
