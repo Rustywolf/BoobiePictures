@@ -19,11 +19,14 @@ import pictures.boobie.plugin.exceptions.NoResultsException;
 public class SubredditData {
     
     private static String searchUrlFormat = "http://reddit.com/r/%s.json";
+    private static String pageUrlFormat = "http://www.reddit.com/r/%s/.json?after=%s";
     private static Pattern matchPattern = Pattern.compile("(.+)(.jpg|.png|.jpeg)");
     
     private String source;
     private String searchString;
     private List<String> imgUrls;
+    
+    private String after = "";
     
     public SubredditData(String searchString, String source) {
         this.source = source;
@@ -32,6 +35,14 @@ public class SubredditData {
         
         this.findImages();
     }
+
+    public String getSource() {
+        return source;
+    }
+
+    public String getSearchString() {
+        return searchString;
+    }
     
     public void findImages() {
         
@@ -39,6 +50,8 @@ public class SubredditData {
         JSONObject data = (JSONObject)obj.get("data");
         JSONArray children = (JSONArray)data.get("children");
         Iterator childIterator = children.iterator();
+        
+        after = (String)data.get("after");
         
         while (childIterator.hasNext()) {
             JSONObject child = (JSONObject)childIterator.next();
@@ -51,6 +64,26 @@ public class SubredditData {
         
         if (imgUrls.isEmpty()) {
             throw new NoResultsException("No results found for: " + searchString);
+        }
+    }
+    
+    public void nextPage() {
+        try {
+            URL url = new URL(String.format(pageUrlFormat, StringEscapeUtils.escapeHtml4(searchString), after));
+            BufferedReader br = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream()));
+            
+            StringBuilder builder = new StringBuilder();
+            
+            String input;
+            while ((input = br.readLine()) != null) {
+                builder.append(input);
+            }
+            
+            this.source = builder.toString();
+            imgUrls.clear();
+            findImages();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
     

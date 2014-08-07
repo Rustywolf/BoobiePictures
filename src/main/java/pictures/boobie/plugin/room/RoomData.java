@@ -8,8 +8,8 @@ import org.bukkit.entity.ItemFrame;
 import org.bukkit.inventory.ItemStack;
 import pictures.boobie.plugin.BoobiePlugin;
 import pictures.boobie.plugin.cuboid.Cuboid;
-import pictures.boobie.plugin.maps.MapFactory;
 import pictures.boobie.plugin.tasks.UpdateImageTask;
+import pictures.boobie.plugin.tasks.UpdatePageTask;
 import pictures.boobie.plugin.util.ImageUtil;
 import pictures.boobie.plugin.web.SubredditData;
 
@@ -54,6 +54,7 @@ public class RoomData {
     public void setSubredditData(SubredditData data) {
         this.data = data;
         this.getNextImage(this.getOwnerName());
+        Bukkit.broadcastMessage(BoobiePlugin.prefix + "The subreddit has been set to " + ChatColor.BOLD + data.getSearchString());
     }
     
     public SubredditData getSubredditData() {
@@ -97,7 +98,7 @@ public class RoomData {
         
         urlCount--;
         if (urlCount < 0) {
-            urlCount = data.getUrls().size()-1;
+            urlCount = 0;
         }
 
         String url = data.getUrls().get(urlCount);
@@ -121,12 +122,11 @@ public class RoomData {
         urlCount++;
         if (urlCount >= data.getUrls().size()) {
             urlCount = 0;
+            Bukkit.getScheduler().runTaskAsynchronously(this.plugin, new UpdatePageTask(this));
+        } else {
+            String url = data.getUrls().get(urlCount);
+            Bukkit.getScheduler().runTaskAsynchronously(this.plugin, new UpdateImageTask(this, url));
         }
-
-        String url = data.getUrls().get(urlCount);
-          
-        Bukkit.getScheduler().runTaskAsynchronously(this.plugin, new UpdateImageTask(this, url));
-        
         return "";
     }
     

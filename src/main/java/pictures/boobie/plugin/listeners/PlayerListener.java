@@ -35,13 +35,15 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        
+
         if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             ItemStack item = event.getItem();
             if (item != null) {
                 if (CustomItems.compareItems(item, CustomItems.YOUR_STICK)) {
                     try {
-                        Particles.FIREWORKS_SPARK.sendToPlayer(player, player.getLocation().add(player.getLocation().getDirection().setY(0).normalize()).add(0, 0.5, 0), .25f, .25f, .25f, 0, 20);
+                        for (Player p : Bukkit.getOnlinePlayers()) {
+                            Particles.FIREWORKS_SPARK.sendToPlayer(p, player.getLocation().add(player.getLocation().getDirection().setY(0).normalize()).add(0, 0.5, 0), .25f, .25f, .25f, 0, 20);
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -69,12 +71,12 @@ public class PlayerListener implements Listener {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }  else if (CustomItems.compareItems(item, CustomItems.CHANGE_SUB)) {
+                } else if (CustomItems.compareItems(item, CustomItems.CHANGE_SUB)) {
                     if (!BoobiePlugin.roomOwner.getName().equals(player.getName())) {
                         player.sendMessage(BoobiePlugin.prefix + "You do not control the room" + ChatColor.DARK_GRAY + ".");
                         return;
                     }
-                    
+
                     AnvilGUI gui = new AnvilGUI(player, plugin, new SubredditAnvilClickHandler(player, plugin));
 
                     gui.setSlot(AnvilSlot.INPUT_LEFT, CustomItems.createNew(new ItemStack(Material.PAPER)).withName("Enter Subreddit Name").getItemStack());
@@ -92,13 +94,13 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        
+
         if (player.isOp()) {
             player.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + player.getName());
         } else {
             player.setDisplayName(ChatColor.GOLD + player.getName());
         }
-        
+
         player.teleport(BoobiePlugin.room.getRoomSpawn());
 
         PlayerInventory inv = player.getInventory();
@@ -107,29 +109,29 @@ public class PlayerListener implements Listener {
         inv.setItem(1, CustomItems.CHANGE_SUB);
         inv.setItem(2, CustomItems.NEXT_BUTTON);
         inv.setItem(8, CustomItems.YOUR_STICK);
-        
+
         if (player.isOp()) {
             inv.setItem(6, CustomItems.FORCE_PASS_ROD);
         }
-        
+
         event.setJoinMessage("");
         Bukkit.broadcastMessage(BoobiePlugin.prefixJoin + player.getDisplayName() + ChatColor.YELLOW + " has joined" + ChatColor.DARK_GRAY + "!");
-        
+
         if (BoobiePlugin.roomOwner.getName().equals("")) {
             BoobiePlugin.roomOwner.setNextName();
         }
     }
-    
+
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         event.setQuitMessage("");
         Bukkit.broadcastMessage(BoobiePlugin.prefixLeave + event.getPlayer().getDisplayName() + ChatColor.YELLOW + " has left" + ChatColor.DARK_GRAY + "!");
-        
+
         if (BoobiePlugin.roomOwner.getName().equals(event.getPlayer().getName())) {
             BoobiePlugin.roomOwner.setNextName();
         }
     }
-    
+
     @EventHandler
     public void onAsyncPlayerChat(AsyncPlayerChatEvent event) {
         event.setFormat(ChatColor.translateAlternateColorCodes('&', "%s &e>> &r%s"));
@@ -146,7 +148,7 @@ public class PlayerListener implements Listener {
             event.setCancelled(true);
         }
     }
-    
+
     @EventHandler
     public void onFoodLevelChange(FoodLevelChangeEvent event) {
         event.setCancelled(true);

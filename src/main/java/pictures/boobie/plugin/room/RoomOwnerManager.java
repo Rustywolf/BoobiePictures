@@ -19,6 +19,8 @@ public class RoomOwnerManager {
     private ArrayList<String> hasOwned = new ArrayList<>();
     private ArrayList<String> toOwn =  new ArrayList<>();
     
+    private int ownerCount = 0;
+    
     public RoomOwnerManager(BoobiePlugin plugin) {
         this.plugin = plugin;
     }
@@ -29,6 +31,10 @@ public class RoomOwnerManager {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getOwnerCount() {
+        return ownerCount;
     }
     
     public void setNextName() {
@@ -60,16 +66,18 @@ public class RoomOwnerManager {
 
             newPlayer.sendMessage(BoobiePlugin.prefix + "You have been granted ownership of the room for 5 minutes" + ChatColor.DARK_GRAY + "!");
             newPlayer.getInventory().setItem(7, CustomItems.PASS_ROD);
+            
             Bukkit.getScheduler().runTaskLater(plugin, new UpdatePlayerInventoryTask(newPlayer), 5);
             
             for (Player p : Bukkit.getOnlinePlayers()) {
-                if (!p.getName().equals(newName) && !p.getName().equals(oldName)) {
-                    p.sendMessage(BoobiePlugin.prefix + p.getDisplayName() + ChatColor.YELLOW + " is now the owner" + ChatColor.DARK_GRAY + "!");
+                if (!p.getName().equals(newName)) {
+                    p.sendMessage(BoobiePlugin.prefix + newPlayer.getDisplayName() + ChatColor.YELLOW + " is now the owner" + ChatColor.DARK_GRAY + "!");
                 }
             }
         }
         
-        Bukkit.getScheduler().runTaskLater(plugin, new RoomOwnerNewNameTask(newName), 5*60*20);
+        ownerCount++;
+        Bukkit.getScheduler().runTaskLater(plugin, new RoomOwnerNewNameTask(newName, ownerCount), 5*60*20);
     }
     
     public boolean resetLists() {
