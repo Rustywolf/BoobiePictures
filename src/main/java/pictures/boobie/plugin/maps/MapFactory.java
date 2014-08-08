@@ -5,18 +5,18 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.HashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
+import pictures.boobie.plugin.hashmap.LimitedHashMap;
 import pictures.boobie.plugin.util.ImageUtil;
 
 public class MapFactory {
 
-    private static HashMap<Integer, Short> mapCache = new HashMap<>();
+    private static LimitedHashMap<Integer, Short> mapCache = new LimitedHashMap<>(200);
     
     public static ItemStack createMap(BufferedImage image, World world) {
         ItemStack map = new ItemStack(Material.MAP);

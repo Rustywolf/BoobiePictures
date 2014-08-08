@@ -37,13 +37,19 @@ public class CustomItems {
     public static ItemStack PASS_ROD = 
             CustomItems.createNew(new ItemStack(Material.BLAZE_ROD))
                     .withName(ChatColor.GOLD + "" + ChatColor.BOLD + "Pass Ownership")
-                    .withLore(ChatColor.GRAY + "" + ChatColor.ITALIC + "Right Click: Give ownership to next person.")
+                    .withLore(ChatColor.GRAY + "" + ChatColor.ITALIC + "Right Click: Gives ownership to player clicked on.")
                     .getItemStack();
     
     public static ItemStack FORCE_PASS_ROD = 
             CustomItems.createNew(new ItemStack(Material.BONE))
-                    .withName(ChatColor.GOLD + "" + ChatColor.BOLD + "Force Pass Ownership")
-                    .withLore(ChatColor.GRAY + "" + ChatColor.ITALIC + "Right Click: Give ownership to next person.")
+                    .withName(ChatColor.GOLD + "" + ChatColor.BOLD + "Take Ownership")
+                    .withLore(ChatColor.GRAY + "" + ChatColor.ITALIC + "Right Click: Take ownership of the room.")
+                    .getItemStack();
+    
+    public static ItemStack NAVIGATION_COMPASS = 
+            CustomItems.createNew(new ItemStack(Material.COMPASS))
+                    .withName(ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "Room Navigation")
+                    .withLore(ChatColor.GRAY + "Right Click: See room info", ChatColor.GRAY + "Click a block to move to that room.")
                     .getItemStack();
     
     public static CustomItem createNew(ItemStack item) {

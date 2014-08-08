@@ -1,13 +1,9 @@
 package pictures.boobie.plugin;
 
-import java.util.ArrayList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,10 +11,8 @@ import pictures.boobie.plugin.listeners.BlockListener;
 import pictures.boobie.plugin.listeners.EntityListener;
 import pictures.boobie.plugin.listeners.PlayerListener;
 import pictures.boobie.plugin.maps.MapFactory;
-import pictures.boobie.plugin.room.RoomData;
-import pictures.boobie.plugin.room.RoomOwnerManager;
+import pictures.boobie.plugin.room.RoomManager;
 import pictures.boobie.plugin.util.ImageUtil;
-import pictures.boobie.plugin.web.SubredditData;
 
 public class BoobiePlugin extends JavaPlugin {
     
@@ -37,8 +31,7 @@ public class BoobiePlugin extends JavaPlugin {
     public static String prefix = ChatColor.translateAlternateColorCodes('&', "&3&lSBP &b>> &e");
     public static String prefixJoin = ChatColor.translateAlternateColorCodes('&', "&2&lSBP &a>> &e");
     public static String prefixLeave = ChatColor.translateAlternateColorCodes('&', "&4&lSBP &c>> &e");
-    public static RoomData room;
-    public static RoomOwnerManager roomOwner;
+    public static RoomManager roomManager;
     
     @Override
     public void onEnable() {
@@ -55,24 +48,8 @@ public class BoobiePlugin extends JavaPlugin {
         ImageUtil.mainMaps = MapFactory.createMaps(ImageUtil.getImage(BoobiePlugin.class.getResourceAsStream("/main.png")), Bukkit.getWorlds().get(0), 512, 512);
         
         this.setupListeners();
-        SubredditData data = SubredditData.browse("boobs");
         
-        Location location = new Location(Bukkit.getWorlds().get(0), -1, 70, -10);
-        ArrayList<ItemFrame> frames = new ArrayList<>();
-        for (int x = 0; x < 4; x++) {
-            for (int y = 0; y < 4; y++) {
-                Location spawnLoc = location.clone().add(x, -y, 0);
-                ItemFrame frame = (ItemFrame)location.getWorld().spawnEntity(spawnLoc, EntityType.ITEM_FRAME);
-                frame.setFacingDirection(BlockFace.SOUTH);
-                frames.add(frame);
-            }
-        }
-        
-        roomOwner = new RoomOwnerManager(this);
-        
-        room = new RoomData(this, location, location, new Location(location.getWorld(), 1, 67.5, -7, 180, 0), frames);
-        room.setSubredditData(data);
-        room.setMainScreen();
+        roomManager = new RoomManager(this, Bukkit.getWorlds().get(0));
     }
     
     @Override

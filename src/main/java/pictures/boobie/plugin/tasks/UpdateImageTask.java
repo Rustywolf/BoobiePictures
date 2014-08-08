@@ -16,7 +16,7 @@ public class UpdateImageTask implements Runnable {
     
     @Override
     public void run() {
-        room.updateImage(MapFactory.createMaps(ImageUtil.getImage(url), room.getRoomCuboid().getWorld(), 512, 512));
+        room.updateImage(MapFactory.createMaps(ImageUtil.getImage(url), room.getWorld(), 512, 512));
         room.setState(RoomData.RoomState.MAIN);
     }
     

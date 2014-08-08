@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import pictures.boobie.plugin.BoobiePlugin;
 import pictures.boobie.plugin.exceptions.NoResultsException;
 import pictures.boobie.plugin.gui.AnvilGUI.AnvilClickEvent;
+import pictures.boobie.plugin.room.RoomData;
 import pictures.boobie.plugin.web.SubredditData;
 
 public class AnvilUpdateSubredditTask implements Runnable {
@@ -20,7 +21,10 @@ public class AnvilUpdateSubredditTask implements Runnable {
     @Override
     public void run() {
         try {
-            BoobiePlugin.room.setSubredditData(SubredditData.browse(ace.getName()));
+            RoomData room = BoobiePlugin.roomManager.getRoom(player);
+            if (room != null) {
+                room.setSubredditData(SubredditData.browse(ace.getName()));
+            }
         } catch (NoResultsException e) {
             player.sendMessage(BoobiePlugin.prefix + "That subreddit does not contain images" + ChatColor.DARK_GRAY + "!");
         }
