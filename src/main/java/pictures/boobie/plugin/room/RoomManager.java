@@ -3,40 +3,43 @@ package pictures.boobie.plugin.room;
 import java.util.ArrayList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.v1_7_R3.CraftChunk;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
+import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import pictures.boobie.plugin.BoobiePlugin;
 import pictures.boobie.plugin.items.CustomItems;
-import pictures.boobie.plugin.util.PacketUtil;
 import pictures.boobie.plugin.web.SubredditData;
 
 public class RoomManager {
 
     private final BoobiePlugin plugin;
     private final ArrayList<RoomData> rooms;
+    private final ArrayList<Chunk> roomChunks;
 
     //Hardcoded since im lazy as fuck
     private final Location pictureOrigin;
     private final Location spawnOrigin;
-    private final int buildingWidth = 8;
-    private final int buildingHeight = 10;
-    private final int buildingDepth = 10;
+    private final int buildingWidth = 256;
+    private final int buildingDepth = 256;
     
     private final Inventory inventory;
 
     public RoomManager(BoobiePlugin plugin, World world) {
         rooms = new ArrayList<>();
+        roomChunks = new ArrayList<>();
 
         this.plugin = plugin;
-        this.pictureOrigin = new Location(world, -1, 70, -10);
-        this.spawnOrigin = new Location(world, 1, 67.5, -7, 180, 0);
+        this.pictureOrigin = new Location(world, -5, 251, 1);
+        this.spawnOrigin = new Location(world, -3, 248, 4, 180, 0);
         
         SubredditData data = SubredditData.browse("boobs");
         
@@ -46,6 +49,8 @@ public class RoomManager {
                 roomData.setSubredditData(data);
                 roomData.setMainScreen();
                 rooms.add(roomData);
+                roomData.getRoomSpawn().getChunk().load();
+                roomChunks.add(roomData.getRoomSpawn().getChunk());
             }
         }
         
@@ -106,6 +111,12 @@ public class RoomManager {
         return this.inventory;
     }
     
+    public void handleChunkEvent(ChunkUnloadEvent event) {
+        if (roomChunks.contains(event.getChunk())) {
+            event.setCancelled(true);
+        }
+    }
+    
     public RoomData assignToRoom(Player player) {
         RoomData room = null;
         for (RoomData roomData : rooms) {
@@ -128,6 +139,7 @@ public class RoomManager {
     public void switchRoom(Player player, int roomID) {
         removePlayerFromRooms(player);
         RoomData room = addPlayerToRoom(player, roomID);
+        ((CraftChunk)room.getRoomSpawn().getChunk()).getHandle().initLighting();
     }
     
     public RoomData addPlayerToRoom(Player player, int roomID) {

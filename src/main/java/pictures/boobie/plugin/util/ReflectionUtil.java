@@ -19,6 +19,20 @@ public class ReflectionUtil {
     }
  
     /**
+    * sets a value of an {@link Object} via reflection
+    *
+    * @param instance instance the class to use
+    * @param fieldName the name of the {@link Field} to modify
+    * @param value the value to set
+    * @throws Exception
+    */
+    public static void setValue(Object instance, String fieldName, Object value, Class clazz) throws Exception {
+        Field field = clazz.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(instance, value);
+    }
+ 
+    /**
     * get a value of an {@link Object}'s {@link Field}
     *
     * @param instance the target {@link Object}
@@ -33,4 +47,19 @@ public class ReflectionUtil {
         return field.get(instance);
     }
  
+ 
+    /**
+    * get a value of an {@link Object}'s {@link Field}
+    *
+    * @param instance the target {@link Object}
+    * @param fieldName name of the {@link Field}
+    * @return the value of {@link Object} instance's {@link Field} with the
+    *        name of fieldName
+    * @throws Exception
+    */
+    public static Object getValue(Object instance, String fieldName, Class clazz) throws Exception {
+        Field field = clazz.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return field.get(instance);
+    }
 }

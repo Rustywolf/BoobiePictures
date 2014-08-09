@@ -6,6 +6,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
+import pictures.boobie.plugin.BoobiePlugin;
 
 public class BlockListener implements Listener {
     
@@ -21,6 +23,11 @@ public class BlockListener implements Listener {
         if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
             event.setCancelled(true);
         }
+    }
+    
+    @EventHandler
+    public void onChunkUnload(ChunkUnloadEvent event) {
+        BoobiePlugin.roomManager.handleChunkEvent(event);
     }
     
 }

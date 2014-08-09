@@ -7,6 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.ItemFrame;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import pictures.boobie.plugin.BoobiePlugin;
 import pictures.boobie.plugin.tasks.UpdateImageTask;
@@ -64,6 +65,29 @@ public class RoomData {
     }
 
     public void setOwnerName(String ownerName) {
+            
+        Player oldPlayer = Bukkit.getPlayerExact(this.ownerName);
+        if (oldPlayer != null) {
+            oldPlayer.sendMessage(BoobiePlugin.prefix + "You no longer control the room" + ChatColor.DARK_GRAY + ".");
+        }
+        
+        if (!ownerName.equals("")) {
+            
+            Player newPlayer = Bukkit.getPlayerExact(ownerName);
+            if (newPlayer == null) {
+                this.ownerName = "";
+                return;
+            }
+            
+            newPlayer.sendMessage(BoobiePlugin.prefix + "You have been given control of the room" + ChatColor.DARK_GRAY + ".");
+            
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if (!player.getName().equals(ownerName)) {
+                    player.sendMessage(BoobiePlugin.prefix + "The room owner is now " + newPlayer.getDisplayName());
+                }
+            }
+        }
+        
         this.ownerName = ownerName;
     }
 
@@ -166,7 +190,7 @@ public class RoomData {
             if (map == null) {
                 break;
             }
-
+            
             frames.get(i).setItem(map);
         }
     }
