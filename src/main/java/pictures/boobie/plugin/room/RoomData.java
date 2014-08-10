@@ -92,7 +92,7 @@ public class RoomData {
             
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (!player.getName().equals(ownerName)) {
-                    player.sendMessage(BoobiePlugin.prefix + "The room owner is now " + newPlayer.getDisplayName());
+                    player.sendMessage(BoobiePlugin.prefix + newPlayer.getDisplayName() + ChatColor.YELLOW + " now owns " + ChatColor.DARK_AQUA + ChatColor.BOLD + "Room #" + (this.id + 1));
                 }
             }
         }
@@ -146,6 +146,10 @@ public class RoomData {
 
     public List<String> getViewers() {
         return viewers;
+    }
+    
+    public void setUrlCount(int urlCount) {
+        this.urlCount = urlCount;
     }
 
     public String getPrevImage(String playerName) {

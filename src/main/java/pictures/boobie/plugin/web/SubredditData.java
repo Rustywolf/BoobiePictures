@@ -14,6 +14,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import pictures.boobie.plugin.exceptions.NoResultsException;
+import pictures.boobie.plugin.exceptions.SubredditNotFoundException;
 
 public class SubredditData {
     
@@ -47,6 +48,11 @@ public class SubredditData {
     public void findImages() {
         
         JSONObject obj = (JSONObject)JSONValue.parse(source);
+        
+        if (obj.containsKey("error")) {
+            throw new SubredditNotFoundException();
+        }
+        
         JSONObject data = (JSONObject)obj.get("data");
         JSONArray children = (JSONArray)data.get("children");
         Iterator childIterator = children.iterator();
@@ -75,13 +81,15 @@ public class SubredditData {
         ArrayList<String> urls = new ArrayList<>();
         
         String source = readImgurSource("https://api.imgur.com/3/album/" + album);
-        JSONObject obj = (JSONObject)JSONValue.parse(source);
-        JSONObject data = (JSONObject)obj.get("data");
-        JSONArray array = (JSONArray)data.get("images");
-        
-        for (int i = 0; i < array.size(); i++) {
-            JSONObject image = (JSONObject)array.get(i);
-            urls.add(String.valueOf(image.get("link")));
+        if (source != null) {
+            JSONObject obj = (JSONObject)JSONValue.parse(source);
+            JSONObject data = (JSONObject)obj.get("data");
+            JSONArray array = (JSONArray)data.get("images");
+
+            for (int i = 0; i < array.size(); i++) {
+                JSONObject image = (JSONObject)array.get(i);
+                urls.add(String.valueOf(image.get("link")));
+            }
         }
         
         return urls;
@@ -147,6 +155,8 @@ public class SubredditData {
             return new SubredditData(queryData, builder.toString());
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
+        } catch (SubredditNotFoundException e) {
             return null;
         }
     }

@@ -164,7 +164,7 @@ public class PlayerListener implements Listener {
             return;
         }
         
-        if (inv.getTitle().equals(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "Rooms")) {
+        if (inv.getTitle().equals(ChatColor.BLACK + "" + ChatColor.BOLD + "Rooms")) {
             event.setCancelled(true);
 
             ItemStack item = event.getCurrentItem();

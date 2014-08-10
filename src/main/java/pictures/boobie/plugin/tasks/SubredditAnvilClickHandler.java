@@ -1,6 +1,7 @@
 package pictures.boobie.plugin.tasks;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import pictures.boobie.plugin.BoobiePlugin;
 import pictures.boobie.plugin.gui.AnvilGUI;
@@ -23,9 +24,10 @@ public class SubredditAnvilClickHandler implements AnvilClickEventHandler {
         }
 
         if (ace.getName() != null && !ace.getName().equals("") && !ace.getName().equals("Enter Subreddit Name")) {
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, new AnvilUpdateSubredditTask(player, ace));
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, new AnvilUpdateSubredditTask(plugin, player, ace));
             ace.setWillClose(true);
             ace.setWillDestroy(true);
+            player.sendMessage(BoobiePlugin.prefix + ChatColor.ITALIC + "Updating...");
         }
     }
 

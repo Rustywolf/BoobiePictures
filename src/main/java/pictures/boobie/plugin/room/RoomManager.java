@@ -55,7 +55,7 @@ public class RoomManager {
             }
         }
         
-        inventory = Bukkit.createInventory(null, 6*9, ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "Rooms");
+        inventory = Bukkit.createInventory(null, 6*9, ChatColor.BLACK + "" + ChatColor.BOLD + "Rooms");
         updateInventory();
         
         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() { 
