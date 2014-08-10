@@ -32,6 +32,10 @@ public class MapFactory {
             view.removeRenderer(mr);
         }
 
+        //Cursor hack?!
+        view.setCenterX(1337*69);
+        view.setCenterZ(1337*69);
+        
         BoobRenderer br = new BoobRenderer();
         br.setImage(image);
         view.addRenderer(br);

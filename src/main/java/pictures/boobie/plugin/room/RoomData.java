@@ -10,6 +10,7 @@ import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import pictures.boobie.plugin.BoobiePlugin;
+import pictures.boobie.plugin.items.CustomItems;
 import pictures.boobie.plugin.tasks.UpdateImageTask;
 import pictures.boobie.plugin.tasks.UpdatePageTask;
 import pictures.boobie.plugin.util.ImageUtil;
@@ -18,6 +19,7 @@ import pictures.boobie.plugin.web.SubredditData;
 public class RoomData {
 
     private final BoobiePlugin plugin;
+    private final int id;
 
     private ArrayList<ItemFrame> frames;
     private SubredditData data = null;
@@ -29,11 +31,16 @@ public class RoomData {
     private String ownerName = "";
     private ArrayList<String> viewers = new ArrayList<>();
 
-    public RoomData(BoobiePlugin plugin, Location roomSpawn, ArrayList<ItemFrame> frames) {
+    public RoomData(int id, BoobiePlugin plugin, Location roomSpawn, ArrayList<ItemFrame> frames) {
         this.plugin = plugin;
+        this.id = id;
         //mapCuboid = new MapCuboid(roomPointOne, roomPointTwo);
         this.roomSpawn = roomSpawn;
         this.frames = frames;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public void setMainScreen() {
@@ -53,7 +60,7 @@ public class RoomData {
     public void setSubredditData(SubredditData data) {
         this.data = data;
         this.getNextImage(this.getOwnerName());
-        Bukkit.broadcastMessage(BoobiePlugin.prefix + "The subreddit has been set to " + ChatColor.BOLD + data.getSearchString());
+        Bukkit.broadcastMessage(BoobiePlugin.prefix + "The subreddit has been set to " + ChatColor.BOLD + data.getSearchString() + ChatColor.YELLOW + " for " + ChatColor.DARK_AQUA + ChatColor.BOLD + "Room #" + (this.id+1));
     }
 
     public SubredditData getSubredditData() {
@@ -69,6 +76,7 @@ public class RoomData {
         Player oldPlayer = Bukkit.getPlayerExact(this.ownerName);
         if (oldPlayer != null) {
             oldPlayer.sendMessage(BoobiePlugin.prefix + "You no longer control the room" + ChatColor.DARK_GRAY + ".");
+            oldPlayer.getInventory().remove(CustomItems.PASS_ROD.getType());
         }
         
         if (!ownerName.equals("")) {
@@ -80,6 +88,7 @@ public class RoomData {
             }
             
             newPlayer.sendMessage(BoobiePlugin.prefix + "You have been given control of the room" + ChatColor.DARK_GRAY + ".");
+            newPlayer.getInventory().setItem(7, CustomItems.PASS_ROD);
             
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (!player.getName().equals(ownerName)) {

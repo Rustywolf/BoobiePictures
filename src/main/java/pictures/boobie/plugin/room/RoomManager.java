@@ -9,9 +9,11 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_7_R3.CraftChunk;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
+import org.bukkit.event.world.ChunkEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -45,8 +47,7 @@ public class RoomManager {
         
         for (int x = 0; x < 6; x++) {
             for (int z = 0; z < 5; z++) {
-                RoomData roomData = createRoom(x, z);
-                roomData.setSubredditData(data);
+                RoomData roomData = createRoom(x*5+z, x, z);
                 roomData.setMainScreen();
                 rooms.add(roomData);
                 roomData.getRoomSpawn().getChunk().load();
@@ -54,7 +55,7 @@ public class RoomManager {
             }
         }
         
-        inventory = Bukkit.createInventory(null, 6*9, ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "Rooms");
+        inventory = Bukkit.createInventory(null, 6*9, ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "Rooms");
         updateInventory();
         
         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() { 
@@ -66,19 +67,23 @@ public class RoomManager {
         }, 5*20, 5*20);
     }
 
-    private RoomData createRoom(int xOffset, int zOffset) {
+    private RoomData createRoom(int id, int xOffset, int zOffset) {
         Location pictureOffset = pictureOrigin.clone().add(-xOffset * buildingWidth, 0, -zOffset * buildingDepth);
 
         ArrayList<ItemFrame> frames = new ArrayList<>();
         for (int x = 0; x < 4; x++) {
             for (int y = 0; y < 4; y++) {
                 Location spawnLoc = pictureOffset.clone().add(x, -y, 0);
+                if (!spawnLoc.getChunk().isLoaded()) {
+                    spawnLoc.getChunk().load();
+                }
+                
                 ItemFrame frame = (ItemFrame) pictureOffset.getWorld().spawnEntity(spawnLoc, EntityType.ITEM_FRAME);
                 frame.setFacingDirection(BlockFace.SOUTH);
                 frames.add(frame);
             }
         }
-        return new RoomData(plugin, spawnOrigin.clone().add(-xOffset * buildingWidth, 0, -zOffset * buildingDepth), frames);
+        return new RoomData(id, plugin, spawnOrigin.clone().add(-xOffset * buildingWidth, 0, -zOffset * buildingDepth), frames);
     }
     
     private void updateInventory() {
@@ -112,8 +117,33 @@ public class RoomManager {
     }
     
     public void handleChunkEvent(ChunkUnloadEvent event) {
-        if (roomChunks.contains(event.getChunk())) {
-            event.setCancelled(true);
+        if (roomChunks != null) {
+            if (roomChunks.contains(event.getChunk())) {
+                event.setCancelled(true);
+            }
+        }
+    }
+    
+    public void handleChunkEntities(ChunkEvent event) {
+        if (rooms == null) {
+            return;
+        }
+        
+        for (Entity entity : event.getChunk().getEntities()) {
+            if (entity instanceof ItemFrame) {
+                for (RoomData room : rooms) {
+                    boolean shouldRemove = true;
+                    if (room != null) {
+                        if (room.getItemFrames() != null && room.getItemFrames().contains((ItemFrame)entity)) {
+                            shouldRemove = false;
+                        }
+                    }
+                    
+                    if (shouldRemove) {
+                        entity.remove();
+                    }
+                }
+            }
         }
     }
     
@@ -139,8 +169,7 @@ public class RoomManager {
     public void switchRoom(Player player, int roomID) {
         removePlayerFromRooms(player);
         RoomData room = addPlayerToRoom(player, roomID);
-        ((CraftChunk)room.getRoomSpawn().getChunk()).getHandle().initLighting();
-    }
+        ((CraftChunk)room.getRoomSpawn().getChunk()).getHandle().initLighting();}
     
     public RoomData addPlayerToRoom(Player player, int roomID) {
         RoomData room = rooms.get(roomID);
@@ -151,6 +180,8 @@ public class RoomManager {
         }
         
         player.teleport(room.getRoomSpawn());
+        
+        CustomItems.createNew(player.getInventory().getItem(3)).withName(ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "Room Navigation" + ChatColor.GRAY + " - " + ChatColor.ITALIC + "You are in room #" + (roomID + 1));
         
         return room;
     }

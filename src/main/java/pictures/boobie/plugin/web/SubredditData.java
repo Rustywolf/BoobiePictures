@@ -3,14 +3,13 @@ package pictures.boobie.plugin.web;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.regex.Pattern;
 import net.minecraft.util.org.apache.commons.lang3.StringEscapeUtils;
-import org.bukkit.Bukkit;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -21,6 +20,7 @@ public class SubredditData {
     private static String searchUrlFormat = "http://reddit.com/r/%s.json";
     private static String pageUrlFormat = "http://www.reddit.com/r/%s/.json?after=%s";
     private static Pattern matchPattern = Pattern.compile("(.+)(.jpg|.png|.jpeg)");
+    private static Pattern imgurPattern = Pattern.compile("(.+)imgur.com/a/(.+)");
     
     private String source;
     private String searchString;
@@ -59,11 +59,52 @@ public class SubredditData {
             String url = (String)childData.get("url");
             if (matchPattern.matcher(url).matches()) {
                 imgUrls.add(url);
+            } else if (imgurPattern.matcher(url).matches()) {
+                String[] urlSplit = url.split("/");
+                List<String> imgurUrls = findImgurImages(urlSplit[urlSplit.length-1]);
+                imgUrls.addAll(imgurUrls);
             }
         }
         
         if (imgUrls.isEmpty()) {
             throw new NoResultsException("No results found for: " + searchString);
+        }
+    }
+    
+    private List<String> findImgurImages(String album) {
+        ArrayList<String> urls = new ArrayList<>();
+        
+        String source = readImgurSource("https://api.imgur.com/3/album/" + album);
+        JSONObject obj = (JSONObject)JSONValue.parse(source);
+        JSONObject data = (JSONObject)obj.get("data");
+        JSONArray array = (JSONArray)data.get("images");
+        
+        for (int i = 0; i < array.size(); i++) {
+            JSONObject image = (JSONObject)array.get(i);
+            urls.add(String.valueOf(image.get("link")));
+        }
+        
+        return urls;
+    }
+    
+    private String readImgurSource(String urlString) {
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            conn.addRequestProperty("Authorization", "Client-ID ebcec909bf52b20");
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            
+            StringBuilder builder = new StringBuilder();
+            
+            String input;
+            while ((input = br.readLine()) != null) {
+                builder.append(input);
+            }
+            
+            return builder.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
     

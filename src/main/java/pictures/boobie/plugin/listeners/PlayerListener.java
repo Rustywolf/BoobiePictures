@@ -24,6 +24,7 @@ import pictures.boobie.plugin.BoobiePlugin;
 import pictures.boobie.plugin.gui.AnvilGUI;
 import pictures.boobie.plugin.gui.AnvilGUI.AnvilSlot;
 import pictures.boobie.plugin.items.CustomItems;
+import pictures.boobie.plugin.maps.BoobRenderer;
 import pictures.boobie.plugin.particles.Particles;
 import pictures.boobie.plugin.room.RoomData;
 import pictures.boobie.plugin.tasks.SubredditAnvilClickHandler;
@@ -43,11 +44,6 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         RoomData room = BoobiePlugin.roomManager.getRoom(player);
 
-        if (room == null) {
-            player.sendMessage(BoobiePlugin.prefix + "You do not own the room" + ChatColor.DARK_GRAY + ".");
-            return;
-        }
-
         if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             ItemStack item = event.getItem();
             if (item != null) {
@@ -61,6 +57,11 @@ public class PlayerListener implements Listener {
                     }
                 } else if (CustomItems.compareItems(item, CustomItems.NEXT_BUTTON)) {
                     try {
+                        if (room == null) {
+                            player.sendMessage(BoobiePlugin.prefix + "You do not own the room" + ChatColor.DARK_GRAY + ".");
+                            return;
+                        }
+                        
                         String ret = room.getNextImage(player.getName());
                         if (!ret.equals("")) {
                             player.sendMessage(BoobiePlugin.prefix + ret);
@@ -70,6 +71,12 @@ public class PlayerListener implements Listener {
                     }
                 } else if (CustomItems.compareItems(item, CustomItems.PREV_BUTTON)) {
                     try {
+                        if (room == null) {
+                            player.sendMessage(BoobiePlugin.prefix + "You do not own the room" + ChatColor.DARK_GRAY + ".");
+                            return;
+                        }
+                        
+                        
                         String ret = room.getPrevImage(player.getName());
                         if (!ret.equals("")) {
                             player.sendMessage(BoobiePlugin.prefix + ret);
@@ -77,15 +84,20 @@ public class PlayerListener implements Listener {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                } else if (CustomItems.compareItems(item, CustomItems.NAVIGATION_COMPASS)) {
+                } else if (item.getType() == Material.COMPASS) {
                     player.openInventory(BoobiePlugin.roomManager.getInventory());
                 } else if (CustomItems.compareItems(item, CustomItems.FORCE_PASS_ROD)) {
                     try {
-                        room.setOwnerName(player.getName());
+                        BoobiePlugin.roomManager.getRoomViewing(player).setOwnerName(player.getName());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 } else if (CustomItems.compareItems(item, CustomItems.CHANGE_SUB)) {
+                    if (room == null) {
+                        player.sendMessage(BoobiePlugin.prefix + "You do not own the room" + ChatColor.DARK_GRAY + ".");
+                        return;
+                    }
+                        
                     if (!room.getOwnerName().equals(player.getName())) {
                         player.sendMessage(BoobiePlugin.prefix + "You do not control the room" + ChatColor.DARK_GRAY + ".");
                         return;
@@ -210,6 +222,7 @@ public class PlayerListener implements Listener {
         Bukkit.broadcastMessage(BoobiePlugin.prefixLeave + event.getPlayer().getDisplayName() + ChatColor.YELLOW + " has left" + ChatColor.DARK_GRAY + "!");
 
         BoobiePlugin.roomManager.removePlayerFromRooms(event.getPlayer());
+        BoobRenderer.removePlayerFromRenders(event.getPlayer());
     }
 
     @EventHandler
